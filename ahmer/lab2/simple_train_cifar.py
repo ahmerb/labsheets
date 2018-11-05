@@ -91,11 +91,33 @@ def deepnn(x):
         h_pool1 = tf.nn.max_pool(h_conv1, ksize=[1, 2, 2, 1],
                           strides=[1, 2, 2, 1], padding='SAME', name='pooling')
 
-        # You need to continue building your convolutional network!
+    with tf.variable_scope('Conv_2'):
+        W_conv2 = weight_variable([5, 5, 32, 64])
+        b_conv2 = bias_variable([64])
+        h_conv2 = tf.nn.relu(tf.nn.conv2d(h_pool1, W_conv2, strides=[1, 1, 1, 1], padding='SAME', name='convolution') + b_conv2)
 
-        y_conv = -1
-        return y_conv, img_summary
+        h_pool2 = tf.nn.max_pool(h_conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pooling')
 
+    with tf.variable_scope('FC_1'):
+        # Fully connected layer 1 -- after 2 round of downsampling, our 32x32
+        # image is down to 8x8x64 feature maps -- maps this to 1024 features.
+        h_pool2_flat = tf.reshape(h_pool2, [-1, 8*8*64]) # shape (4096,)
+
+        W_fc1 = weight_variable([8 * 8 * 64, 1024])
+        b_fc1 = bias_variable([1024])
+        h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    with tf.variable_scope('FC_2'):
+        W_fc2 = weight_variable([1024, 1024])
+        b_fc2 = bias_variable([1024])
+        h_fc2 = tf.nn.relu(tf.matmul(h_fc1, W_fc2) + b_fc2)
+
+    with tf.variable_scope('FC_3'):
+        W_fc3 = weight_variable([1024, FLAGS.num_classes])
+        b_fc3 = bias_variable([FLAGS.num_classes])
+        y_conv = tf.matmul(h_fc2, W_fc3) + b_fc3
+
+    return y_conv, img_summary
 
 def main(_):
     tf.reset_default_graph()
@@ -113,14 +135,13 @@ def main(_):
     y_conv, img_summary = deepnn(x)
 
     # Define your loss function - softmax_cross_entropy
-    cross_entropy = 0
+    with tf.variable_scope('x_entropy'):
+        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
     
     # Define your AdamOptimiser, using FLAGS.learning_rate to minimixe the loss function
-    
-    # calculate the prediction and the accuracy
-    correct_prediction = 0
-    accuracy = 0
-    
+    train_step = tf.train.AdamOptimizer(FLAGS.learning_rate).minimize(cross_entropy)
+    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name='accuracy')
     loss_summary = tf.summary.scalar('Loss', cross_entropy)
     acc_summary = tf.summary.scalar('Accuracy', accuracy)
 
@@ -144,22 +165,21 @@ def main(_):
             (trainImages, trainLabels) = cifar.getTrainBatch()
             (testImages, testLabels) = cifar.getTestBatch()
             
-            ##_, summary_str = sess.run([optimiser, training_summary], feed_dict={x: trainImages, y_: trainLabels})
+            _, summary_str = sess.run([train_step, training_summary], feed_dict={x: trainImages, y_: trainLabels})
 
-            
-            ##if step % (FLAGS.log_frequency + 1)== 0:
-            ##    summary_writer.add_summary(summary_str, step)
+            if step % (FLAGS.log_frequency + 1) == 0:
+               summary_writer.add_summary(summary_str, step)
 
-            ## Validation: Monitoring accuracy using validation set
-            ##if step % FLAGS.log_frequency == 0:
-            ##    validation_accuracy, summary_str = sess.run([accuracy, validation_summary], feed_dict={x: testImages, y_: testLabels})
-            ##    print('step %d, accuracy on validation batch: %g' % (step, validation_accuracy))
-            ##    summary_writer_validation.add_summary(summary_str, step)
+            # Validation: Monitoring accuracy using validation set
+            if step % FLAGS.log_frequency == 0:
+               validation_accuracy, summary_str = sess.run([accuracy, validation_summary], feed_dict={x: testImages, y_: testLabels})
+               print('step %d, accuracy on validation batch: %g' % (step, validation_accuracy))
+               summary_writer_validation.add_summary(summary_str, step)
 
-            ## Save the model checkpoint periodically.
-            ##if step % FLAGS.save_model == 0 or (step + 1) == FLAGS.max_steps:
-            ##    checkpoint_path = os.path.join(run_log_dir + '_train', 'model.ckpt')
-            ##    saver.save(sess, checkpoint_path, global_step=step)
+            # Save the model checkpoint periodically.
+            if step % FLAGS.save_model == 0 or (step + 1) == FLAGS.max_steps:
+               checkpoint_path = os.path.join(run_log_dir + '_train', 'model.ckpt')
+               saver.save(sess, checkpoint_path, global_step=step)
 
         # Testing
 
@@ -172,11 +192,11 @@ def main(_):
         # don't loop back when we reach the end of the test set
         while evaluated_images != cifar.nTestSamples:
             (testImages, testLabels) = cifar.getTestBatch(allowSmallerBatches=True)
-            ##test_accuracy_temp, _ = sess.run([accuracy, test_summary], feed_dict={x: testImages, y_: testLabels})
+            test_accuracy_temp, _ = sess.run([accuracy, test_summary], feed_dict={x: testImages, y_: testLabels})
 
-            ##batch_count = batch_count + 1
-            ##test_accuracy = test_accuracy + test_accuracy_temp
-            ##evaluated_images = evaluated_images + testLabels.shape[0]
+            batch_count = batch_count + 1
+            test_accuracy = test_accuracy + test_accuracy_temp
+            evaluated_images = evaluated_images + testLabels.shape[0]
 
         test_accuracy = test_accuracy / batch_count
         print('test set: accuracy on test set: %0.3f' % test_accuracy)

@@ -22,6 +22,7 @@ import os.path
 import tensorflow as tf
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'CIFAR10'))
+
 import cifar10 as cf
 
 FLAGS = tf.app.flags.FLAGS
