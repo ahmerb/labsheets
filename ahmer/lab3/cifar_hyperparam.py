@@ -36,29 +36,37 @@ tf.app.flags.DEFINE_integer('save-model', 1000,
                             'Number of steps between model saves (default: %(default)d)')
 
 # Optimisation hyperparameters
-tf.app.flags.DEFINE_integer('batch-size', 128, 'Number of examples per mini-batch (default: %(default)d)')
-tf.app.flags.DEFINE_float('learning-rate', 1e-4, 'Learning rate (default: %(default)d)')
+tf.app.flags.DEFINE_integer('batch-size', 256, 'Number of examples per mini-batch (default: %(default)d)')
+tf.app.flags.DEFINE_float('learning-rate', 1e-3, 'Learning rate (default: %(default)d)')
 tf.app.flags.DEFINE_integer('img-width', 32, 'Image width (default: %(default)d)')
 tf.app.flags.DEFINE_integer('img-height', 32, 'Image height (default: %(default)d)')
 tf.app.flags.DEFINE_integer('img-channels', 3, 'Image channels (default: %(default)d)')
 tf.app.flags.DEFINE_integer('num-classes', 10, 'Number of classes (default: %(default)d)')
-tf.app.flags.DEFINE_string('log-dir', '{cwd}/logs_second/'.format(cwd=os.getcwd()),
+tf.app.flags.DEFINE_string('log-dir', '{cwd}/logs/'.format(cwd=os.getcwd()),
                            'Directory where to write event logs and checkpoint. (default: %(default)s)')
 
 
 run_log_dir = os.path.join(FLAGS.log_dir,
-                           'secondexp_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
+                           'exp_BN_xavier_uniform_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
                                                         lr=FLAGS.learning_rate))
 
+# the initialiser object implementing Xavier initialisation
+# we will generate weights from the uniform distribution
+xavier_initializer = tf.contrib.layers.xavier_initializer(uniform=True)
+
 def weight_variable(shape):
-    """weight_variable generates a weight variable of a given shape."""
-    initial = tf.truncated_normal(shape, stddev=0.1)
-    return tf.Variable(initial, name='weights')
+  """weight_variable generates a weight variable of a given shape."""
+  #initial = tf.truncated_normal(shape, stddev=0.1)
+  #initial = tf.zeros(shape)
+  #initial = tf.ones(shape)
+  #return tf.Variable(initial, name='weights')
+  return tf.Variable(xavier_initializer(shape), name='weights') # using Xavier initialisation
 
 def bias_variable(shape):
-    """bias_variable generates a bias variable of a given shape."""
-    initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial, name='biases')
+  """bias_variable generates a bias variable of a given shape."""
+  #initial = tf.constant(0.1, shape=shape)
+  #return tf.Variable(initial, name='biases')
+  return tf.Variable(xavier_initializer(shape), name='biases') # using Xavier initialisation
 
 def deepnn(x):
     """deepnn builds the graph for a deep net for classifying CIFAR10 images.
@@ -76,8 +84,7 @@ def deepnn(x):
     # Reshape to use within a convolutional neural net.  Last dimension is for
     # 'features' - it would be 1 one for a grayscale image, 3 for an RGB image,
     # 4 for RGBA, etc.
-    
-    #-1 is used here to infer the shape. We might not know how many N_examples are passed in as x 
+
     x_image = tf.reshape(x, [-1, FLAGS.img_width, FLAGS.img_height, FLAGS.img_channels])
 
     img_summary = tf.summary.image('Input_images', x_image)
@@ -85,38 +92,79 @@ def deepnn(x):
     # First convolutional layer - maps one image to 32 feature maps.
     with tf.variable_scope('Conv_1'):
         W_conv1 = weight_variable([5, 5, FLAGS.img_channels, 32])
-        b_conv1 = bias_variable([32])
-        h_conv1 = tf.nn.relu(tf.nn.conv2d(x_image, W_conv1, strides=[1, 1, 1, 1], padding='SAME', name='convolution') + b_conv1)
+        # b_conv1 = bias_variable([32]) don't need with Batch Normalisation
+
+        # batch normalization
+        Z1 = tf.nn.conv2d(x_image, W_conv1, strides=[1, 1, 1, 1], padding='SAME', name='convolution')
+
+        # find mean and variance
+        Z1_mean, Z1_var = tf.nn.moments(Z1, [0])
+
+        # find Z1_hat, the batch norm of Z1
+        epsilon = tf.constant(1e-5) # small const to avoid div by 0
+        Z1_sd_epsilon = tf.sqrt(tf.add(Z1_var, epsilon))
+        Z1_hat = tf.divide( tf.subtract(Z1, Z1_mean),  Z1_sd_epsilon )
+
+        gamma1 = tf.Variable(tf.ones([32, 32, 32]))
+        beta1 = tf.Variable(tf.ones([32]))
+
+        # Scale and shift to obtain the final output of the batch normalisation
+        # this value is fed into the activation function (here a ReLU)
+        bn1 = gamma1 * Z1_hat + beta1     
+        h_conv1_bn = tf.nn.relu(bn1)
 
         # Pooling layer - downsamples by 2X.
-        h_pool1 = tf.nn.max_pool(h_conv1, ksize=[1, 2, 2, 1],
-                          strides=[1, 2, 2, 1], padding='SAME', name='pooling')
+        h_pool1 = tf.nn.max_pool(h_conv1_bn, ksize=[1, 2, 2, 1],
+                           strides=[1, 2, 2, 1], padding='SAME', name='pooling')
+
 
     with tf.variable_scope('Conv_2'):
-        #THIS HAS CHANGED TO BE A SMALLER KERNEL
-        W_conv2 = weight_variable([2,2,32,64])
-        b_conv2 = bias_variable([64])
-        h_conv2 = tf.nn.relu(tf.nn.conv2d(h_pool1, W_conv2, strides=[1,1,1,1], padding='SAME', name='convolution2') + b_conv2)
+        W_conv2 = weight_variable([5, 5, 32, 64])
+        # b_conv2 = bias_variable([64]) don't need with batch normalization
 
-        #Pooling layer 2
-        h_pool2 = tf.nn.max_pool(h_conv2, ksize=[1,2,2,1],strides=[1,2,2,1], padding='SAME', name='pooling2')
-        reshapedh_pool2 = tf.reshape(h_pool2, [-1,4096]) 
+        # batch norm
+        Z2 = tf.nn.conv2d(h_pool1, W_conv2, strides=[1, 1, 1, 1], padding='SAME', name='convolution2')
+
+        # find mean and var
+        Z2_mean, Z2_var = tf.nn.moments(Z2, [0])
+
+        # find Z2_hat, the batch norm of Z2
+        Z2_sd_epsilon = tf.sqrt(tf.add(Z2_var, epsilon))
+        Z2_hat = tf.divide( tf.subtract(Z2, Z2_mean), Z2_sd_epsilon )
+
+        gamma2 = tf.Variable(tf.ones([16, 16, 64]))
+        beta2 = tf.Variable(tf.ones([64]))
+
+        bn2 = gamma2 * Z2_hat + beta2
+        h_conv2_bn = tf.nn.relu(bn2)
+
+        h_pool2 = tf.nn.max_pool(h_conv2_bn, ksize=[1, 2, 2, 1],
+                            strides=[1, 2, 2, 1], padding='SAME', name='pooling2')
+
+        # h_conv2 = tf.nn.relu(tf.nn.conv2d(h_pool1, W_conv2, strides=[1, 1, 1, 1], padding='SAME', name='convolution2') + b_conv2)
+
+        # h_pool2 = tf.nn.max_pool(h_conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pooling')
+
     with tf.variable_scope('FC_1'):
-        #Fully connected network
-        W_fc1 = weight_variable([4096,1024])
-        b_fc1 = bias_variable([1024])
-        h_fc1 = tf.nn.relu(tf.matmul(reshapedh_pool2,W_fc1) + b_fc1)
-    with tf.variable_scope('FC_2'): 
-        W_fc2 = weight_variable([1024,1024])
-        b_fc2 = bias_variable([1024])
-        h_fc2 = tf.nn.relu(tf.matmul(h_fc1,W_fc2) + b_fc2) 
-    with tf.variable_scope('FC_3'):
-        h_fc2 = tf.nn.relu(tf.matmul(h_fc1,W_fc2) + b_fc2)
-        W_fc3 = weight_variable([1024,FLAGS.num_classes])
-        b_fc3 = bias_variable([FLAGS.num_classes])
-        y_conv = tf.nn.relu(tf.matmul(h_fc2,W_fc3) + b_fc3)
-        return y_conv, img_summary
+        # Fully connected layer 1 -- after 2 round of downsampling, our 32x32
+        # image is down to 8x8x64 feature maps -- maps this to 1024 features.
+        h_pool2_flat = tf.reshape(h_pool2, [-1, 8*8*64]) # shape (4096,)
 
+        W_fc1 = weight_variable([8 * 8 * 64, 1024])
+        b_fc1 = bias_variable([1024])
+        h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    with tf.variable_scope('FC_2'):
+        W_fc2 = weight_variable([1024, 1024])
+        b_fc2 = bias_variable([1024])
+        h_fc2 = tf.nn.relu(tf.matmul(h_fc1, W_fc2) + b_fc2)
+
+    with tf.variable_scope('FC_3'):
+        W_fc3 = weight_variable([1024, FLAGS.num_classes])
+        b_fc3 = bias_variable([FLAGS.num_classes])
+        y_conv = tf.matmul(h_fc2, W_fc3) + b_fc3
+
+    return y_conv, img_summary
 
 def main(_):
     tf.reset_default_graph()
@@ -134,15 +182,25 @@ def main(_):
     y_conv, img_summary = deepnn(x)
 
     # Define your loss function - softmax_cross_entropy
-    with tf.variable_scope("x_entropy"):
-        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits =y_conv))
+    with tf.variable_scope('x_entropy'):
+        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
     
     # Define your AdamOptimiser, using FLAGS.learning_rate to minimixe the loss function
-    optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate).minimize(cross_entropy)
-    # calculate the prediction and the accuracy
-    correct_prediction = tf.equal(tf.argmax(y_,1), tf.argmax(y_conv,1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    
+
+    # train_step = tf.train.AdamOptimizer(FLAGS.learning_rate).minimize(cross_entropy)
+
+    # replace above line with an AdamOptimizer that uses a decaying learning rate
+    global_step = tf.Variable(0, trainable=False)
+    # using 1e-1 or 1e-2, the starting learning rate is so high that it can't begin learning, so loss and accuracy plateau very quickly
+    start_learning_rate = FLAGS.learning_rate
+    decay_steps = 1000
+    decay_rate = 0.8
+    learning_rate = tf.train.exponential_decay(start_learning_rate, global_step, decay_steps, decay_rate)
+    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
+
+    # define accuracy and loss functions
+    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name='accuracy')
     loss_summary = tf.summary.scalar('Loss', cross_entropy)
     acc_summary = tf.summary.scalar('Accuracy', accuracy)
 
@@ -155,8 +213,10 @@ def main(_):
     saver = tf.train.Saver(tf.global_variables(), max_to_keep=1)
 
     with tf.Session() as sess:
-        summary_writer = tf.summary.FileWriter(run_log_dir + '_train', sess.graph)
-        summary_writer_validation = tf.summary.FileWriter(run_log_dir + '_validate', sess.graph)
+        # summary_writer = tf.summary.FileWriter(run_log_dir + '_train', sess.graph)
+        # summary_writer_validation = tf.summary.FileWriter(run_log_dir + '_validate', sess.graph)
+        summary_writer = tf.summary.FileWriter(run_log_dir + '_train_lrDecay', sess.graph)
+        summary_writer_validation = tf.summary.FileWriter(run_log_dir + '_validate_lrDecay', sess.graph)
 
         sess.run(tf.global_variables_initializer())
 
@@ -166,22 +226,21 @@ def main(_):
             (trainImages, trainLabels) = cifar.getTrainBatch()
             (testImages, testLabels) = cifar.getTestBatch()
             
-            _, summary_str = sess.run([optimizer, training_summary], feed_dict={x: trainImages, y_: trainLabels})
+            _, summary_str = sess.run([train_step, training_summary], feed_dict={x: trainImages, y_: trainLabels})
 
-            
-            if step % (FLAGS.log_frequency + 1)== 0:
-                summary_writer.add_summary(summary_str, step)
+            if step % (FLAGS.log_frequency + 1) == 0:
+               summary_writer.add_summary(summary_str, step)
 
             # Validation: Monitoring accuracy using validation set
             if step % FLAGS.log_frequency == 0:
-                validation_accuracy, summary_str = sess.run([accuracy, validation_summary], feed_dict={x: testImages, y_: testLabels})
-                print('step %d, accuracy on validation batch: %g' % (step, validation_accuracy))
-                summary_writer_validation.add_summary(summary_str, step)
+               validation_accuracy, summary_str = sess.run([accuracy, validation_summary], feed_dict={x: testImages, y_: testLabels})
+               print('step %d, accuracy on validation batch: %g' % (step, validation_accuracy))
+               summary_writer_validation.add_summary(summary_str, step)
 
             # Save the model checkpoint periodically.
             if step % FLAGS.save_model == 0 or (step + 1) == FLAGS.max_steps:
-                checkpoint_path = os.path.join(run_log_dir + '_train', 'model.ckpt')
-                saver.save(sess, checkpoint_path, global_step=step)
+               checkpoint_path = os.path.join(run_log_dir + '_train', 'model.ckpt')
+               saver.save(sess, checkpoint_path, global_step=step)
 
         # Testing
 
