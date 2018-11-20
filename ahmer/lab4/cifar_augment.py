@@ -35,12 +35,12 @@ tf.app.flags.DEFINE_string('log-dir', '{cwd}/logs/'.format(cwd=os.getcwd()),
 
 
 run_log_dir = os.path.join(FLAGS.log_dir,
-                           'exp_BN_xavier_uniform_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
+                           'exp_BN_xavier_normal_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
                                                         lr=FLAGS.learning_rate))
 
 # the initialiser object implementing Xavier initialisation
 # we will generate weights from the uniform distribution
-xavier_initializer = tf.contrib.layers.xavier_initializer(uniform=True)
+xavier_initializer = tf.contrib.layers.xavier_initializer(uniform=False)
 
 def weight_variable(shape):
   """weight_variable generates a weight variable of a given shape."""
@@ -69,6 +69,7 @@ def deepnn(x, is_training):
         (airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck)
       img_summary: a string tensor containing sampled input images.
     """
+    is_training_flag = is_training[0] # extract bool from Tensor of bool (shape [1])
 
     with tf.variable_scope('DEEP_CNN'):
         # Reshape to use within a convolutional neural net.  Last dimension is for
@@ -88,7 +89,7 @@ def deepnn(x, is_training):
             kernel_initializer=xavier_initializer,
             name='conv1'
         )
-        conv1_bn = tf.nn.relu(tf.layers.batch_normalization(conv1, training=is_training))
+        conv1_bn = tf.nn.relu(tf.layers.batch_normalization(conv1, training=is_training_flag))
         pool1 = tf.layers.max_pooling2d(
             inputs=conv1_bn,
             pool_size=[2, 2],
@@ -106,7 +107,7 @@ def deepnn(x, is_training):
             kernel_initializer=xavier_initializer,
             name='conv2'
         )
-        conv2_bn = tf.nn.relu(tf.layers.batch_normalization(conv2, training=is_training))
+        conv2_bn = tf.nn.relu(tf.layers.batch_normalization(conv2, training=is_training_flag))
         pool2 = tf.layers.max_pooling2d(
             inputs=conv2_bn,
             pool_size=[2, 2],
@@ -118,7 +119,7 @@ def deepnn(x, is_training):
         pool2_flat = tf.reshape(pool2, [-1, 8*8*64])
         fc1 = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
         fc2 = tf.layers.dense(inputs=fc1, units=1024, activation=tf.nn.relu)
-        y_conv = tf.layers.dense(inputs=fc1, units=FLAGS.num_classes)
+        y_conv = tf.layers.dense(inputs=fc2, units=FLAGS.num_classes)
 
     return y_conv, img_summary 
 
@@ -183,14 +184,14 @@ def main(_):
             (trainImages, trainLabels) = cifar.getTrainBatch()
             (testImages, testLabels) = cifar.getTestBatch()
             
-            _, summary_str = sess.run([train_step, training_summary], feed_dict={x: trainImages, y_: trainLabels, is_training: True})
+            _, summary_str = sess.run([train_step, training_summary], feed_dict={x: trainImages, y_: trainLabels, is_training: [True]})
 
             if step % (FLAGS.log_frequency + 1) == 0:
                summary_writer.add_summary(summary_str, step)
 
             # Validation: Monitoring accuracy using validation set
             if step % FLAGS.log_frequency == 0:
-               validation_accuracy, summary_str = sess.run([accuracy, validation_summary], feed_dict={x: testImages, y_: testLabels, is_training: False})
+               validation_accuracy, summary_str = sess.run([accuracy, validation_summary], feed_dict={x: testImages, y_: testLabels, is_training: [False]})
                print('step %d, accuracy on validation batch: %g' % (step, validation_accuracy))
                summary_writer_validation.add_summary(summary_str, step)
 
@@ -210,7 +211,7 @@ def main(_):
         # don't loop back when we reach the end of the test set
         while evaluated_images != cifar.nTestSamples:
             (testImages, testLabels) = cifar.getTestBatch(allowSmallerBatches=True)
-            test_accuracy_temp, _ = sess.run([accuracy, test_summary], feed_dict={x: testImages, y_: testLabels, is_training: False})
+            test_accuracy_temp, _ = sess.run([accuracy, test_summary], feed_dict={x: testImages, y_: testLabels, is_training: [False]})
 
             batch_count = batch_count + 1
             test_accuracy = test_accuracy + test_accuracy_temp
