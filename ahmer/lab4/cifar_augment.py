@@ -35,26 +35,12 @@ tf.app.flags.DEFINE_string('log-dir', '{cwd}/logs/'.format(cwd=os.getcwd()),
 
 
 run_log_dir = os.path.join(FLAGS.log_dir,
-                           'exp_BN_xavier_normal_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
+                           'exp_BN_xavier_normal_data_augment_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
                                                         lr=FLAGS.learning_rate))
 
 # the initialiser object implementing Xavier initialisation
-# we will generate weights from the uniform distribution
+# we will generate weights from the uniform or normal distribution
 xavier_initializer = tf.contrib.layers.xavier_initializer(uniform=False)
-
-def weight_variable(shape):
-  """weight_variable generates a weight variable of a given shape."""
-  #initial = tf.truncated_normal(shape, stddev=0.1)
-  #initial = tf.zeros(shape)
-  #initial = tf.ones(shape)
-  #return tf.Variable(initial, name='weights')
-  return tf.Variable(xavier_initializer(shape), name='weights') # using Xavier initialisation
-
-def bias_variable(shape):
-  """bias_variable generates a bias variable of a given shape."""
-  #initial = tf.constant(0.1, shape=shape)
-  #return tf.Variable(initial, name='biases')
-  return tf.Variable(xavier_initializer(shape), name='biases') # using Xavier initialisation
 
 def deepnn(x, is_training):
     """deepnn builds the graph for a deep net for classifying CIFAR10 images.
@@ -76,6 +62,11 @@ def deepnn(x, is_training):
         # 'features' - it would be 1 one for a grayscale image, 3 for an RGB image,
         # 4 for RGBA, etc.
         x_image = tf.reshape(x, [-1, FLAGS.img_width, FLAGS.img_height, FLAGS.img_channels])
+
+        # apply data augmentations
+        x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(tf.image.random_flip_left_right, x_image), lambda: x_image)
+        x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_brightness(x, 0.1), x_image), lambda: x_image)
+        x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_hue(x, 0.1), x_image), lambda: x_image)
 
         img_summary = tf.summary.image('Input_images', x_image)
 
@@ -219,8 +210,6 @@ def main(_):
 
         test_accuracy = test_accuracy / batch_count
         print('test set: accuracy on test set: %0.3f' % test_accuracy)
-
-
 
 if __name__ == '__main__':
     tf.app.run(main=main)
