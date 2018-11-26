@@ -1,0 +1,441 @@
+
+--------------------- /mnt/storage/easybuild/modules/local ---------------------
+   apps/amber16/tools17-mpi-gnu-7.2.0
+   apps/amber16/tools17-mpi-intel-2018-u3     (D)
+   apps/blast/gnu/2.7.1
+   apps/c2x/2.20
+   apps/chimera/1.12rc
+   apps/cp2k/5.1.intel-mpi
+   apps/examl/examl-3.0.21-mpi-gnu
+   apps/fasttree/2.1.10
+   apps/gromacs/2018-mpi-gpu-intel            (D)
+   apps/hail/08.05.2018
+   apps/lammps/11.08.2017
+   apps/ls-dyna/971R7.1.2
+   apps/matlab/2017a
+   apps/matlab/2018a                          (D)
+   apps/motioncor2/2-1.0.2
+   apps/motioncor2/2-1.1.0                    (D)
+   apps/mrbayes/3.2.6
+   apps/namd/2017-07-17-intel-mpi
+   apps/namd/2017-07-17-multicore-cuda        (D)
+   apps/nastran/2016.1.1
+   apps/openfoam/2.3
+   apps/orthofinder/2.1.2
+   apps/orthofinder/2.2.3                     (D)
+   apps/patran/2012.2.1
+   apps/plumed/2.1.2-ompi-1.1.3.gnu
+   apps/qctool/2.0rc4
+   apps/relion/2.1.GPU
+   apps/relion/2.1.NO-GUI
+   apps/relion/2.1
+   apps/relion/2.2                            (D)
+   apps/rvtests/2.0.6
+   apps/scipion/1.2.gpu                       (D)
+   apps/silix/1.2.9
+   apps/sphire/2017.06.02                     (D)
+   apps/xancil/0.6.2
+   languages/anaconda2/4.4.0
+   languages/anaconda2/5.0.1.tensorflow-1.4
+   languages/anaconda2/5.0.1.tensorflow-1.5.0
+   languages/anaconda2/5.0.1.tensorflow-1.6.0
+   languages/anaconda2/5.0.1                  (D)
+   languages/anaconda3/3.5-4.2.0-tflow-1.7
+   languages/anaconda3/5.2.0-tflow-1.7
+   languages/anaconda3/5.2.0-tflow-1.11       (D)
+   languages/intel/2016-u3-cuda-8.0
+   languages/intel/2017.01
+   languages/intel/2018-u3                    (D)
+   languages/mono/5.8.0.22
+   libs/cuda/9.0-gcc-5.4.0-2.26
+   libs/gsl/2.5-gcc-5.5.0
+   libs/tensorflow/1.2                        (L)
+   libs/triqs-deps/1.25.09.2018               (D)
+   tools/cmake/3.8.2
+   tools/git/2.18.0                           (L)
+   tools/nco/4.7.2
+   tools/sunstudio/12.6
+   tools/tmux/2.7
+
+---------------------- /mnt/storage/easybuild/modules/all ----------------------
+   APR/1.5.2-foss-2016b
+   APR-util/1.5.4-foss-2016b
+   ATLAS/3.10.2-GCC-5.4.0-2.26-LAPACK-3.6.1
+   Autoconf/2.69-foss-2016a
+   Autoconf/2.69-foss-2016b
+   Autoconf/2.69-GCC-4.9.2
+   Autoconf/2.69-GCC-4.9.3-2.25
+   Autoconf/2.69-GCC-5.4.0-2.26
+   Autoconf/2.69-GCCcore-6.4.0
+   Autoconf/2.69-GCCcore-7.2.0
+   Autoconf/2.69                                               (D)
+   Automake/1.15-foss-2016a
+   Automake/1.15-foss-2016b
+   Automake/1.15-GCC-4.9.2
+   Automake/1.15-GCC-4.9.3-2.25
+   Automake/1.15-GCC-5.4.0-2.26
+   Automake/1.15.1-GCCcore-7.2.0                               (D)
+   Autotools/20150215-foss-2016a
+   Autotools/20150215-foss-2016b
+   Autotools/20150215-GCC-4.9.3-2.25
+   Autotools/20150215-GCC-5.4.0-2.26
+   Autotools/20150215
+   Autotools/20170619-GCCcore-6.4.0
+   Autotools/20170619-GCCcore-7.2.0                            (D)
+   Bison/3.0.4-foss-2016a
+   Bison/3.0.4-foss-2016b
+   Bison/3.0.4-GCC-4.9.3-binutils-2.25
+   Bison/3.0.4-GCCcore-7.2.0
+   Boost/1.61.0-foss-2016a-Python-2.7.11
+   Boost/1.61.0-foss-2016b                                     (D)
+   CBLAS/20110120-foss-2016b
+   CMake/2.8.12-GCC-4.8.2
+   CMake/3.4.1-foss-2016a
+   CMake/3.4.3-foss-2016a
+   CMake/3.5.2-foss-2016a
+   CMake/3.5.2-foss-2016b
+   CMake/3.6.1-GCC-5.4.0-2.26
+   CUDA/8.0.44-GCC-5.4.0-2.26                                  (L)
+   CUDA/8.0.44-iccifort-2016.3.210-GCC-5.4.0-2.26
+   Clang/3.8.1-GCC-5.4.0-2.26
+   Doxygen/1.8.11-foss-2016a
+   Doxygen/1.8.11-foss-2016b                                   (D)
+   EasyBuild/3.0.2
+   EasyBuild/3.1.2
+   EasyBuild/3.2.0
+   EasyBuild/3.2.1
+   EasyBuild/3.5.2
+   EasyBuild/3.6.2
+   Eigen/3.2.8-foss-2016a
+   FFTW/3.3.4-gompi-2015a
+   FFTW/3.3.4-gompi-2016a
+   FFTW/3.3.4-gompi-2016b                                      (L)
+   FFTW/3.3.5-gompic-2016.10
+   FFTW/3.3.6-gompi-2017a                                      (D)
+   FFmpeg/3.0.2-foss-2016a
+   GCC/4.7.2
+   GCC/4.8.2
+   GCC/4.9.2
+   GCC/4.9.3-binutils-2.25
+   GCC/4.9.3-2.25
+   GCC/5.4.0-2.26                                              (L)
+   GCC/6.3.0-2.27
+   GCC/6.4.0-2.28
+   GCC/7.2.0-2.29                                              (D)
+   GCCcore/7.2.0                                               (D)
+   GDAL/2.0.2-foss-2016a
+   GLib/2.47.5-foss-2016a
+   GLib/2.48.0-foss-2016a                                      (D)
+   GMP/6.1.0-foss-2016a
+   GMP/6.1.0-GCC-4.9.3-2.25
+   GMP/6.1.1-foss-2016b                                        (L)
+   GMP/6.1.1-GCC-5.4.0-2.26
+   GMP/6.1.2-GCCcore-6.4.0                                     (D)
+   GNU/4.9.3-2.25
+   GROMACS/5.1.4-foss-2016b-hybrid
+   GROMACS/2016-foss-2016b-hybrid                              (D)
+   GSL/2.1-foss-2016a
+   GSL/2.3-foss-2017a                                          (D)
+   GlobalArrays/5.4b-foss-2015a-openib
+   Guile/2.0.11-foss-2016a
+   HDF5/1.8.16-foss-2016a-serial
+   HDF5/1.8.16-foss-2016a
+   HDF5/1.8.17-foss-2016a
+   HDF5/1.8.17-foss-2016b                                      (D)
+   HPL/2.1-foss-2016b
+   HPL/2.2-goolfc-2016.10                                      (D)
+   Harminv/1.4-foss-2016a
+   ISL/0.16-GCC-4.9.3-2.25
+   JUnit/4.12-Java-1.8.0_92
+   JasPer/1.900.1-foss-2016a
+   Java/1.6.0_24
+   Java/1.8.0_72
+   Java/1.8.0_92                                               (D)
+   LLVM/3.8.0-foss-2016a
+   LMDB/0.9.18-foss-2016a
+   LevelDB/1.18-foss-2016a
+   LibTIFF/4.0.6-foss-2016a
+   LibTIFF/4.0.6-foss-2016b                                    (D)
+   M4/1.4.17-foss-2016a
+   M4/1.4.17-foss-2016b
+   M4/1.4.17-GCC-4.9.2
+   M4/1.4.17-GCC-4.9.3-binutils-2.25
+   M4/1.4.17-GCC-4.9.3-2.25
+   M4/1.4.17-GCC-5.4.0-2.26
+   M4/1.4.18-GCCcore-7.2.0
+   Meep/1.3-foss-2016a
+   Mesa/11.2.1-foss-2016a
+   MrBayes/3.2.6-foss-2016a
+   NASM/2.11.08-foss-2016a
+   NASM/2.12.01-foss-2016a
+   NASM/2.12.02-foss-2016b                                     (D)
+   OpenBLAS/0.2.13-GCC-4.9.2-LAPACK-3.5.0
+   OpenBLAS/0.2.15-GCC-4.9.3-2.25-LAPACK-3.6.0
+   OpenBLAS/0.2.18-GCC-5.4.0-2.26-LAPACK-3.6.1                 (L)
+   OpenBLAS/0.2.19-GCC-6.3.0-2.27-LAPACK-3.7.0
+   OpenBLAS/0.2.19-gompic-2016.10-LAPACK-3.6.1
+   OpenBLAS/0.2.20-GCC-6.4.0-2.28                              (D)
+   OpenBabel/2.3.2-foss-2016a-Python-2.7.11
+   OpenMPI/1.6.4-GCC-4.7.2
+   OpenMPI/1.6.5-GCC-4.8.2
+   OpenMPI/1.8.4-GCC-4.9.2
+   OpenMPI/1.10.2-GCC-4.9.3-2.25
+   OpenMPI/1.10.3-GCC-5.4.0-2.26                               (L)
+   OpenMPI/2.0.1-gcccuda-2016.10
+   OpenMPI/2.0.2-GCC-6.3.0-2.27
+   OpenMPI/3.0.0-GCC-7.2.0-2.29                                (D)
+   PCRE/8.38-foss-2016a
+   PCRE/8.38-foss-2016b
+   PROJ/4.9.2-foss-2016a
+   PROJ/4.9.2-foss-2016b                                       (D)
+   ParaView/4.4.0-foss-2016a
+   Perl/5.20.1-GCC-4.9.2-bare
+   Perl/5.22.1-foss-2016a-bare
+   Perl/5.26.0-GCCcore-6.4.0                                   (D)
+   Pillow/3.2.0-foss-2016a-Python-2.7.11-freetype-2.6.3
+   Python/2.7.11-foss-2016a
+   Python/2.7.12-foss-2016b                                    (L)
+   Python/2.7.12-GCC-5.4.0-2.26-bare                           (D)
+   Qhull/2015.2-foss-2016a
+   Qt/4.8.7-foss-2016a
+   R/3.2.3-foss-2016a.bak
+   R/3.2.3-foss-2016a                                          (D)
+   R-bundle-Bioconductor/3.2-foss-2016a-R-3.2.3
+   RAxML/8.2.9-foss-2016a-hybrid-avx2
+   SCons/2.5.0-foss-2016b-Python-2.7.12
+   SQLite/3.8.8.1-foss-2016b
+   SQLite/3.9.2-foss-2016a
+   SQLite/3.13.0-foss-2016b                                    (L)
+   SQLite/3.13.0-GCC-5.4.0-2.26                                (D)
+   ScaLAPACK/2.0.2-gompi-2015a-OpenBLAS-0.2.13-LAPACK-3.5.0
+   ScaLAPACK/2.0.2-gompi-2016a-OpenBLAS-0.2.15-LAPACK-3.6.0
+   ScaLAPACK/2.0.2-gompi-2016b-OpenBLAS-0.2.18-LAPACK-3.6.1    (L)
+   ScaLAPACK/2.0.2-gompi-2017a-OpenBLAS-0.2.19-LAPACK-3.7.0
+   ScaLAPACK/2.0.2-gompic-2016.10-OpenBLAS-0.2.19-LAPACK-3.6.1 (D)
+   Serf/1.3.8-foss-2016b
+   Subversion/1.8.14-foss-2016b
+   Szip/2.1-foss-2016a
+   Szip/2.1-foss-2016b                                         (D)
+   Tcl/8.6.3-foss-2016b
+   Tcl/8.6.4-foss-2016a
+   Tcl/8.6.5-foss-2016b                                        (L)
+   Tcl/8.6.5-GCC-5.4.0-2.26
+   Tk/8.6.4-foss-2016a-no-X11
+   Tk/8.6.5-foss-2016b                                         (L)
+   Tk/8.6.5-GCC-5.4.0-2.26                                     (D)
+   VTune/2016_update3
+   X11/20171023-GCCcore-6.4.0
+   XML-Parser/2.44_01-GCCcore-6.4.0-Perl-5.26.0
+   XZ/5.2.2-foss-2016b
+   XZ/5.2.2-GCC-5.4.0-2.26
+   XZ/5.2.3-GCCcore-6.4.0                                      (D)
+   Yasm/1.3.0-foss-2016a
+   ant/1.9.7-Java-1.8.0_92
+   beagle-lib/2.1.2-foss-2016a
+   binutils/2.25-GCC-4.9.3-binutils-2.25
+   binutils/2.25-GCCcore-4.9.3
+   binutils/2.25
+   binutils/2.26-GCCcore-5.4.0                                 (L)
+   binutils/2.26
+   binutils/2.27-GCCcore-6.3.0
+   binutils/2.27
+   binutils/2.28-GCCcore-6.4.0
+   binutils/2.28
+   binutils/2.29-GCCcore-7.2.0
+   binutils/2.29                                               (D)
+   build/gcc-7.2.0                                             (D)
+   byacc/20160606-foss-2016b
+   bzip2/1.0.6-foss-2016a
+   bzip2/1.0.6-foss-2016b                                      (L)
+   bzip2/1.0.6-GCC-5.4.0-2.26
+   bzip2/1.0.6-GCCcore-6.4.0                                   (D)
+   cURL/7.40.0-GCC-4.9.2
+   cURL/7.47.0-foss-2016a
+   cURL/7.49.1-foss-2016b                                      (D)
+   cairo/1.14.6-foss-2016a
+   damageproto/1.2.1-foss-2016a
+   eudev/3.1.5-foss-2016a
+   expat/2.1.0-foss-2016a
+   expat/2.1.0-foss-2016b
+   expat/2.1.0-GCC-4.9.2
+   expat/2.1.1-foss-2016a
+   expat/2.2.0-foss-2016b
+   expat/2.2.4-GCCcore-6.4.0                                   (D)
+   fixesproto/5.0-foss-2016a
+   flex/2.5.39-GCC-4.9.3-binutils-2.25
+   flex/2.5.39-GCCcore-4.9.3
+   flex/2.5.39
+   flex/2.6.0-foss-2016a
+   flex/2.6.0-foss-2016b
+   flex/2.6.0-GCCcore-5.4.0
+   flex/2.6.0
+   flex/2.6.3-GCCcore-6.3.0
+   flex/2.6.3
+   flex/2.6.4-GCCcore-6.4.0
+   flex/2.6.4-GCCcore-7.2.0
+   flex/2.6.4                                                  (D)
+   fontconfig/2.11.94-foss-2016a
+   fontconfig/2.12.1-foss-2016b
+   fontconfig/2.12.4-GCCcore-6.4.0                             (D)
+   fontsproto/2.1.3-foss-2016a
+   foss/2015a
+   foss/2016a
+   foss/2016b                                                  (L)
+   foss/2017a                                                  (D)
+   freetype/2.6.2-foss-2016a
+   freetype/2.6.3-foss-2016a
+   freetype/2.6.5-foss-2016b
+   freetype/2.8-GCCcore-6.4.0                                  (D)
+   gc/7.4.4-foss-2016a
+   gcccuda/2016.10
+   gettext/0.19.4-GCC-4.9.2
+   gettext/0.19.6-foss-2016a
+   gettext/0.19.7-foss-2016a
+   gflags/2.1.2-foss-2016a
+   glog/0.3.4-foss-2016a
+   glproto/1.4.17-foss-2016a
+   gompi/2015a
+   gompi/2016a
+   gompi/2016b                                                 (L)
+   gompi/2017a                                                 (D)
+   gompic/2016.10
+   goolfc/2016.10
+   gperf/3.0.4-foss-2016a
+   help2man/1.47.4-GCCcore-6.3.0
+   help2man/1.47.4-GCCcore-6.4.0
+   help2man/1.47.4-GCCcore-7.2.0
+   help2man/1.47.4                                             (D)
+   hwloc/1.6.2-GCC-4.7.2
+   hwloc/1.8.1-GCC-4.8.2
+   hwloc/1.10.0-GCC-4.9.2
+   hwloc/1.11.2-GCC-4.9.3-2.25
+   hwloc/1.11.3-GCC-5.4.0-2.26                                 (L)
+   hwloc/1.11.4-gcccuda-2016.10
+   hwloc/1.11.5-GCC-6.3.0-2.27
+   hwloc/1.11.8-GCCcore-7.2.0                                  (D)
+   icc/2016.3.210-GCC-5.4.0-2.26
+   icc/2017.1.132-GCC-5.4.0-2.26                               (D)
+   iccifort/2016.3.210-GCC-5.4.0-2.26
+   iccifort/2017.1.132-GCC-5.4.0-2.26                          (D)
+   iccifortcuda/2016.10
+   ifort/2016.3.210-GCC-5.4.0-2.26
+   ifort/2017.1.132-GCC-5.4.0-2.26                             (D)
+   iimpi/2016b
+   iimpi/2017.01-GCC-5.4.0-2.26                                (D)
+   iimpic/2016.10
+   imkl/11.3.3.210-iimpi-2016b
+   imkl/11.3.3.210-iimpic-2016.10
+   imkl/2017.1.132-GCC-5.4.0-2.26                              (D)
+   impi/5.1.3.181-iccifort-2016.3.210-GCC-5.4.0-2.26
+   impi/5.1.3.181-iccifortcuda-2016.10
+   impi/2017.1.132-GCC-5.4.0-2.26                              (D)
+   inputproto/2.3.1-foss-2016a
+   intel/2016b
+   intel/2017.01                                               (D)
+   intelcuda/2016.10
+   intltool/0.51.0-GCCcore-6.4.0-Perl-5.26.0
+   kbproto/1.0.7-foss-2016a
+   libGLU/9.0.0-foss-2016a-Mesa-11.2.1
+   libICE/1.0.9-foss-2016a
+   libSM/1.2.2-foss-2016a
+   libX11/1.6.3-foss-2016a
+   libXau/1.0.8-foss-2016a
+   libXdamage/1.1.4-foss-2016a
+   libXdmcp/1.1.2-foss-2016a
+   libXext/1.3.3-foss-2016a
+   libXfixes/5.0.1-foss-2016a
+   libXfont/1.5.1-foss-2016a-freetype-2.6.3
+   libXrender/0.9.9-foss-2016a
+   libXt/1.1.5-foss-2016a
+   libctl/3.2.2-foss-2016a
+   libdrm/2.4.68-foss-2016a
+   libdrm/2.4.88-GCCcore-6.4.0                                 (D)
+   libffi/3.2.1-foss-2016a
+   libffi/3.2.1-foss-2016b                                     (L)
+   libffi/3.2.1-GCC-5.4.0-2.26
+   libffi/3.2.1-GCCcore-6.4.0                                  (D)
+   libfontenc/1.1.3-foss-2016a
+   libjpeg-turbo/1.4.2-foss-2016a-NASM-2.12.01
+   libjpeg-turbo/1.4.2-foss-2016a
+   libjpeg-turbo/1.5.0-foss-2016b                              (D)
+   libpciaccess/0.13.4-foss-2016a
+   libpng/1.6.21-foss-2016a
+   libpng/1.6.23-foss-2016b
+   libpng/1.6.24-foss-2016b
+   libpng/1.6.32-GCCcore-6.4.0                                 (D)
+   libpthread-stubs/0.3-foss-2016a
+   libreadline/6.3-foss-2016a
+   libreadline/6.3-foss-2016b                                  (L)
+   libreadline/6.3-GCC-5.4.0-2.26
+   libtool/2.4.2-GCC-4.9.2
+   libtool/2.4.6-foss-2016a
+   libtool/2.4.6-foss-2016b
+   libtool/2.4.6-GCC-4.9.2
+   libtool/2.4.6-GCC-4.9.3-2.25
+   libtool/2.4.6-GCC-5.4.0-2.26
+   libtool/2.4.6-GCCcore-6.4.0
+   libtool/2.4.6-GCCcore-7.2.0
+   libtool/2.4.6                                               (D)
+   libunistring/0.9.3-foss-2016a
+   libxcb/1.11.1-foss-2016a
+   libxml2/2.9.3-foss-2016a
+   libxml2/2.9.4-foss-2016b
+   libxml2/2.9.4-GCC-5.4.0-2.26
+   libxml2/2.9.4-GCCcore-6.4.0                                 (D)
+   makedepend/1.0.5-foss-2016a
+   matplotlib/1.5.1-foss-2016a-Python-2.7.11-freetype-2.6.3
+   matplotlib/1.5.1-foss-2016a-Python-2.7.11                   (D)
+   ncurses/5.9-GCC-4.8.2
+   ncurses/6.0-foss-2016a
+   ncurses/6.0-foss-2016b                                      (L)
+   ncurses/6.0-GCC-5.4.0-2.26
+   netCDF/4.3.3.1-foss-2016a
+   nettle/3.2-foss-2016b
+   networkx/1.11-foss-2016a-Python-2.7.11
+   numactl/2.0.10-GCC-4.9.2
+   numactl/2.0.11-GCC-4.9.3-2.25
+   numactl/2.0.11-GCC-5.4.0-2.26                               (L)
+   numactl/2.0.11-GCC-6.3.0-2.27
+   numactl/2.0.11-GCCcore-6.4.0
+   numactl/2.0.11-GCCcore-7.2.0
+   numactl/2.0.11-gcccuda-2016.10                              (D)
+   pixman/0.34.0-foss-2016a
+   pkg-config/0.29-foss-2016a
+   pkg-config/0.29.1-foss-2016a
+   pkg-config/0.29.1-foss-2016b
+   pkg-config/0.29.2-GCCcore-6.4.0                             (D)
+   protobuf/3.0.2-foss-2016a
+   protobuf-python/3.0.2-foss-2016a-Python-2.7.11
+   renderproto/0.11-foss-2016a
+   scikit-learn/0.17.1-foss-2016a-Python-2.7.11
+   snappy/1.1.3-GCC-4.9.3-2.25
+   util-linux/2.31-GCCcore-6.4.0
+   vtune/2017.1.132-GCC-5.4.0-2.26.fix
+   vtune/2017.1.132-GCC-5.4.0-2.26.original
+   vtune/2017.1.132-GCC-5.4.0-2.26                             (D)
+   x264/20160430-foss-2016a
+   xextproto/7.3.0-foss-2016a
+   xorg-macros/1.19.0-foss-2016a
+   xproto/7.0.28-foss-2016a
+   xtrans/1.3.5-foss-2016a
+   zlib/1.2.8-foss-2016a
+   zlib/1.2.8-foss-2016b                                       (L)
+   zlib/1.2.8-GCC-4.9.3-binutils-2.25
+   zlib/1.2.8-GCC-5.4.0-2.26
+   zlib/1.2.8-GCCcore-4.9.3
+   zlib/1.2.8-GCCcore-5.4.0
+   zlib/1.2.8-intel-2016b
+   zlib/1.2.8
+   zlib/1.2.11-GCCcore-6.3.0
+   zlib/1.2.11-GCCcore-6.4.0
+   zlib/1.2.11-GCCcore-7.2.0
+   zlib/1.2.11                                                 (D)
+
+  Where:
+   D:  Default Module
+   L:  Module is loaded
+
+Use "module spider" to find all possible modules.
+Use "module keyword key1 key2 ..." to search for all possible modules matching
+any of the "keys".
+

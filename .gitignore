@@ -1,6 +1,8 @@
 # don't commit cleverhans
 ahmer/lab5/src
 
+ahmer/lab5/logs_submit_maybe
+
 
 .DS_Store
 ._.DS_Store

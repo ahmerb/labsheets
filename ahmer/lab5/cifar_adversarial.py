@@ -39,7 +39,7 @@ tf.app.flags.DEFINE_string('log-dir', '{cwd}/logs/'.format(cwd=os.getcwd()),
 
 
 run_log_dir = os.path.join(FLAGS.log_dir,
-                           'exp_bs_{bs}_lr_{lr}_monitor_adv'.format(bs=FLAGS.batch_size, # FIXME renmae this cos its confusing
+                           'exp_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
                                                         lr=FLAGS.learning_rate))
 
 # the initialiser object implementing Xavier initialisation
@@ -67,9 +67,9 @@ def deepnn(x, is_training):
     x_image = tf.reshape(x, [-1, FLAGS.img_width, FLAGS.img_height, FLAGS.img_channels])
 
     # apply data augmentations
-    # x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(tf.image.random_flip_left_right, x_image), lambda: x_image)
-    # x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_brightness(x, 0.1), x_image), lambda: x_image)
-    # x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_hue(x, 0.1), x_image), lambda: x_image)
+    x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(tf.image.random_flip_left_right, x_image), lambda: x_image)
+    x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_brightness(x, 0.1), x_image), lambda: x_image)
+    x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_hue(x, 0.1), x_image), lambda: x_image)
 
     # LAYER 1
     conv1 = tf.layers.conv2d(
@@ -203,7 +203,7 @@ def main(_):
                print('step %d, accuracy on validation batch: %g' % (step, validation_accuracy))
                summary_writer_validation.add_summary(summary_str, step)
 
-            # Monitor accuracy on adversarial images
+            # Validation: Monitor accuracy on adversarial images
             if step % FLAGS.log_frequency == 0:
                 x_adv_np = x_adv.eval(session=sess, feed_dict={x: testImages, y_: testLabels, is_training: [False]})
                 adversarial_accuracy, summary_str = sess.run([accuracy, adv_valid_summary], feed_dict={x: x_adv_np, y_: testLabels, is_training: [False]})

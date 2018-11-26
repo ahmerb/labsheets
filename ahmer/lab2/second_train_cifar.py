@@ -37,7 +37,7 @@ tf.app.flags.DEFINE_integer('save-model', 1000,
 
 # Optimisation hyperparameters
 tf.app.flags.DEFINE_integer('batch-size', 128, 'Number of examples per mini-batch (default: %(default)d)')
-tf.app.flags.DEFINE_float('learning-rate', 1e-4, 'Learning rate (default: %(default)d)')
+tf.app.flags.DEFINE_float('learning-rate', 1e-5, 'Learning rate (default: %(default)d)')
 tf.app.flags.DEFINE_integer('img-width', 32, 'Image width (default: %(default)d)')
 tf.app.flags.DEFINE_integer('img-height', 32, 'Image height (default: %(default)d)')
 tf.app.flags.DEFINE_integer('img-channels', 3, 'Image channels (default: %(default)d)')
@@ -108,11 +108,14 @@ def deepnn(x):
         h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
     with tf.variable_scope('FC_2'):
-        W_fc2 = weight_variable([1024, FLAGS.num_classes])
-        b_fc2 = bias_variable([FLAGS.num_classes])
-        y_conv = tf.matmul(h_fc1, W_fc2) + b_fc2
+        W_fc2 = weight_variable([1024, 1024])
+        b_fc2 = bias_variable([1024])
+        h_fc2 = tf.nn.relu(tf.matmul(h_fc1, W_fc2) + b_fc2)
 
-    # Remove layer FC_3
+    with tf.variable_scope('FC_3'):
+        W_fc3 = weight_variable([1024, FLAGS.num_classes])
+        b_fc3 = bias_variable([FLAGS.num_classes])
+        y_conv = tf.matmul(h_fc2, W_fc3) + b_fc3
 
     return y_conv, img_summary
 
