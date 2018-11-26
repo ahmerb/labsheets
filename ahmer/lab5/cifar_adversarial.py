@@ -20,7 +20,7 @@ FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('data-dir', os.getcwd() + '/dataset/',
                             'Directory where the dataset will be stored and checkpoint. (default: %(default)s)')
-tf.app.flags.DEFINE_integer('max-steps', 1000,#10000,
+tf.app.flags.DEFINE_integer('max-steps', 10000,
                             'Number of mini-batches to train on. (default: %(default)d)')
 tf.app.flags.DEFINE_integer('log-frequency', 10,
                             'Number of steps between logging results to the console and saving summaries (default: %(default)d)')
@@ -39,7 +39,7 @@ tf.app.flags.DEFINE_string('log-dir', '{cwd}/logs/'.format(cwd=os.getcwd()),
 
 
 run_log_dir = os.path.join(FLAGS.log_dir,
-                           'exp_BN_xavier_normal_data_augment_bs_{bs}_lr_{lr}'.format(bs=FLAGS.batch_size,
+                           'exp_bs_{bs}_lr_{lr}_monitor_adv'.format(bs=FLAGS.batch_size, # FIXME renmae this cos its confusing
                                                         lr=FLAGS.learning_rate))
 
 # the initialiser object implementing Xavier initialisation
@@ -70,8 +70,6 @@ def deepnn(x, is_training):
     # x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(tf.image.random_flip_left_right, x_image), lambda: x_image)
     # x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_brightness(x, 0.1), x_image), lambda: x_image)
     # x_image = tf.cond(tf.equal(is_training_flag, True), lambda: tf.map_fn(lambda x: tf.image.random_hue(x, 0.1), x_image), lambda: x_image)
-
-    img_summary = tf.summary.image('Input_images', x_image)
 
     # LAYER 1
     conv1 = tf.layers.conv2d(
@@ -158,16 +156,22 @@ def main(_):
     acc_summary = tf.summary.scalar('Accuracy', accuracy)
 
     # summaries for TensorBoard visualisation
-    # validation_summary = tf.summary.merge([img_summary, acc_summary])
-    # training_summary = tf.summary.merge([img_summary, loss_summary])
-    # test_summary = tf.summary.merge([img_summary, acc_summary])
+    x_image = tf.reshape(x, [-1, FLAGS.img_width, FLAGS.img_height, FLAGS.img_channels])
+    img_summary = tf.summary.image('Input_images', x_image)
+    validation_summary = tf.summary.merge([img_summary, acc_summary])
+    training_summary = tf.summary.merge([img_summary, loss_summary])
+    test_summary = tf.summary.merge([img_summary, acc_summary])
+    adv_train_summary = tf.summary.merge([img_summary, loss_summary])
+    adv_valid_summary = tf.summary.merge([img_summary, acc_summary])
 
     # saver for checkpoints
     saver = tf.train.Saver(tf.global_variables(), max_to_keep=1)
 
     with tf.Session() as sess:
-        summary_writer = tf.summary.FileWriter(run_log_dir + '_train', sess.graph, flush_secs=5)
-        summary_writer_validation = tf.summary.FileWriter(run_log_dir + '_validate', sess.graph, flush_secs=5)
+        summary_writer = tf.summary.FileWriter(run_log_dir + '_train', sess.graph, flush_secs=20)
+        summary_writer_validation = tf.summary.FileWriter(run_log_dir + '_validate', sess.graph, flush_secs=20)
+        summary_adv_writer = tf.summary.FileWriter(run_log_dir + '_adv_train', sess.graph, flush_secs=20)
+        summary_writer_adv_validation = tf.summary.FileWriter(run_log_dir + '_adv_validate', sess.graph, flush_secs=20)
 
         sess.run(tf.global_variables_initializer())
 
@@ -177,53 +181,82 @@ def main(_):
             x_adv = fgsm.generate(x, eps=0.05, clip_min=0.0, clip_max=1.0)
 
         # Training and validation
-        for step in range(FLAGS.max_steps):
+        for step in range(0, FLAGS.max_steps, 2):
             # Training: Backpropagation using train set
             (trainImages, trainLabels) = cifar.getTrainBatch()
             (testImages, testLabels) = cifar.getTestBatch()
-            
-            _ = sess.run(train_step, feed_dict={x: trainImages, y_: trainLabels, is_training: [True]})
 
-            # if step % (FLAGS.log_frequency + 1) == 0:
-            #    summary_writer.add_summary(summary_str, step)
+            # Normal Training
+            _, summary_train_str = sess.run([train_step, training_summary], feed_dict={x: trainImages, y_: trainLabels, is_training: [True]})
+
+            # Adversarial Training
+            x_adv_np = x_adv.eval(session=sess, feed_dict={x: trainImages, y_: trainLabels, is_training: [True]})
+            _, summary_adv_train_str = sess.run([train_step, adv_train_summary], feed_dict={x: x_adv_np, y_: trainLabels, is_training: [True]})
+
+            if step % (FLAGS.log_frequency + 1) == 0:
+               summary_writer.add_summary(summary_train_str, step)
+               summary_adv_writer.add_summary(summary_adv_train_str, step)
 
             # Validation: Monitoring accuracy using validation set
             if step % FLAGS.log_frequency == 0:
-               validation_accuracy = sess.run(accuracy, feed_dict={x: testImages, y_: testLabels, is_training: [False]})
+               validation_accuracy, summary_str = sess.run([accuracy, validation_summary], feed_dict={x: testImages, y_: testLabels, is_training: [False]})
                print('step %d, accuracy on validation batch: %g' % (step, validation_accuracy))
-               # summary_writer_validation.add_summary(summary_str, step)
+               summary_writer_validation.add_summary(summary_str, step)
+
+            # Monitor accuracy on adversarial images
+            if step % FLAGS.log_frequency == 0:
+                x_adv_np = x_adv.eval(session=sess, feed_dict={x: testImages, y_: testLabels, is_training: [False]})
+                adversarial_accuracy, summary_str = sess.run([accuracy, adv_valid_summary], feed_dict={x: x_adv_np, y_: testLabels, is_training: [False]})
+                print('step %d, accuracy on adversarial batch: %g' % (step, adversarial_accuracy))
+                summary_writer_adv_validation.add_summary(summary_str, step)
 
             # Save the model checkpoint periodically.
             if step % FLAGS.save_model == 0 or (step + 1) == FLAGS.max_steps:
                checkpoint_path = os.path.join(run_log_dir + '_train', 'model.ckpt')
                saver.save(sess, checkpoint_path, global_step=step)
 
+        #=========
         # Testing
 
         # resetting the internal batch indexes
         cifar.reset()
         evaluated_images = 0
         test_accuracy = 0
+        adv_accuracy = 0
         batch_count = 0
+
+        # record image summary for adversarial examples
+        x_image = tf.reshape(x, [-1, FLAGS.img_width, FLAGS.img_height, FLAGS.img_channels])
+        test_img_summary = tf.summary.image('Test Images', x_image)
+        adv_test_img_summary = tf.summary.image('Adversarial Test Images', tf.reshape(x_adv, [-1, FLAGS.img_width, FLAGS.img_height, FLAGS.img_channels]))
+        adv_summary = tf.summary.merge([test_img_summary, adv_test_img_summary])
+        adversarial_writer = tf.summary.FileWriter(run_log_dir + "_adv_test", sess.graph)
 
         # don't loop back when we reach the end of the test set
         while evaluated_images != cifar.nTestSamples:
             (testImages, testLabels) = cifar.getTestBatch(allowSmallerBatches=True)
+
+            # Test batch
             test_accuracy_temp = sess.run(accuracy, feed_dict={x: testImages, y_: testLabels, is_training: [False]})
 
+            # Create adversarial batch and test it
+            x_adv_np = x_adv.eval(session=sess, feed_dict={x: testImages, y_: testLabels, is_training: [False]})
+            adv_accuracy_temp = sess.run(accuracy, feed_dict={x: x_adv_np, y_: testLabels, is_training: [False]})
+
+            adv_summary_str = sess.run(adv_summary, feed_dict={x: x_adv_np, y_: testLabels, is_training: [False]})
+            adversarial_writer.add_summary(adv_summary_str, batch_count)
+
+            # incr counters and maintain accuracy measures
             batch_count = batch_count + 1
             test_accuracy = test_accuracy + test_accuracy_temp
+            adv_accuracy = adv_accuracy + adv_accuracy_temp
             evaluated_images = evaluated_images + testLabels.shape[0]
 
         test_accuracy = test_accuracy / batch_count
+        adv_accuracy  = adv_accuracy  / batch_count
         print('test set: accuracy on test set: %0.3f' % test_accuracy)
+        print(' adv set: accuracy on adv set : %0.3f' %  adv_accuracy)
 
-        # Testing on Adversaral Set
-        cifar.reset()
-        (testImages, testLabels) = cifar.getTestBatch()
-        x_adv_np = x_adv.eval(session=sess, feed_dict={x: testImages, y_: testLabels, is_training: [False]})
-        adv_accuracy = sess.run(accuracy, feed_dict={x: x_adv_np, y_: testLabels, is_training: [False]})
-        print(' adv set: accuracy on adv set : %0.3f' % adv_accuracy)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,2 @@
+model_checkpoint_path: "/mnt/storage/home/ab15015/deep_learning/labsheets/ahmer/lab5/logs/exp_bs_256_lr_0.001_2_train/model.ckpt-9999"
+all_model_checkpoint_paths: "/mnt/storage/home/ab15015/deep_learning/labsheets/ahmer/lab5/logs/exp_bs_256_lr_0.001_2_train/model.ckpt-9999"
